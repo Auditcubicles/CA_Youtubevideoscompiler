@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Final Countdown — CA Final Revision Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12141a; --ink-2:#1b1e26; --panel:#1f2330; --stub:#232838;
+    --paper:#ede9e1; --paper-dim:#a8a6a0; --amber:#e8a33d; --amber-dim:#8a6a34;
+    --teal:#4fa88f; --red:#d9705f; --line:#333849; --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--ink);color:var(--paper);font-family:'Inter',sans-serif;}
+  body{min-height:100vh;}
+  ::selection{background:var(--amber);color:var(--ink);}
+  .app{display:grid;grid-template-columns:300px 1fr;min-height:100vh;}
+  @media (max-width:860px){.app{grid-template-columns:1fr;}}
+  .sidebar{background:var(--ink-2);border-right:1px solid var(--line);padding:22px 16px 40px;}
+  .brand{margin-bottom:22px;}
+  .brand .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--amber);text-transform:uppercase;}
+  .brand h1{font-family:'Newsreader',serif;font-weight:600;font-size:26px;margin:4px 0 2px;line-height:1.1;}
+  .brand p{margin:0;font-size:12.5px;color:var(--paper-dim);}
+  .subject-list{display:flex;flex-direction:column;gap:10px;}
+  .stub{position:relative;background:var(--stub);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;cursor:pointer;transition:border-color .15s;}
+  .stub:hover{border-color:var(--amber-dim);}
+  .stub.active{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber) inset;}
+  .stub-code{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--amber);letter-spacing:.08em;}
+  .stub-name{font-family:'Newsreader',serif;font-size:15.5px;font-weight:600;margin:3px 0 8px;color:var(--paper);}
+  .stub-editname{background:transparent;border:none;border-bottom:1px dashed var(--line);color:var(--paper);font-family:'Newsreader',serif;font-size:15.5px;font-weight:600;width:100%;margin:3px 0 8px;padding:0 0 2px;}
+  .stub-editname:focus{outline:none;border-color:var(--amber);}
+  .progress-row{display:flex;align-items:center;gap:8px;}
+  .progress-track{flex:1;height:5px;border-radius:3px;background:#2c3140;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--amber-dim),var(--amber));}
+  .progress-label{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--paper-dim);white-space:nowrap;}
+  .stub-remove{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--paper-dim);font-size:14px;cursor:pointer;opacity:.5;}
+  .stub-remove:hover{opacity:1;color:var(--red);}
+  .add-subject{margin-top:14px;width:100%;background:transparent;border:1px dashed var(--line);color:var(--paper-dim);border-radius:var(--radius);padding:10px;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .add-subject:hover{color:var(--amber);border-color:var(--amber-dim);}
+  .revision-cta{margin-top:22px;padding:14px;border-radius:var(--radius);background:linear-gradient(160deg,#2a2320,#1b1e26);border:1px solid var(--amber-dim);}
+  .revision-cta .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.1em;}
+  .revision-cta p{font-size:12px;color:var(--paper-dim);margin:6px 0 10px;line-height:1.5;}
+  .revision-cta button{width:100%;background:var(--amber);color:#221a0c;border:none;border-radius:7px;padding:9px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .revision-cta button:hover{filter:brightness(1.08);}
+  .main{padding:26px 34px 60px;max-width:980px;}
+  @media (max-width:860px){.main{padding:20px;}}
+  .main-header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+  .main-header h2{font-family:'Newsreader',serif;font-size:28px;font-weight:600;margin:0;}
+  .main-header .sub{font-size:12.5px;color:var(--paper-dim);margin-top:4px;font-family:'JetBrains Mono',monospace;}
+  .link-form{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .link-form input{flex:1;min-width:220px;background:var(--panel);border:1px solid var(--line);color:var(--paper);padding:11px 13px;border-radius:8px;font-size:13.5px;font-family:'Inter',sans-serif;}
+  .link-form input:focus{outline:none;border-color:var(--amber);}
+  .link-form button{background:var(--amber);color:#221a0c;border:none;border-radius:8px;padding:0 18px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;}
+  .link-form button:hover{filter:brightness(1.08);}
+  .link-form button.secondary{background:var(--panel);color:var(--paper);border:1px solid var(--line);}
+  .player-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);margin:8px 0;}
+  .player-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .player-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--paper-dim);gap:8px;text-align:center;padding:20px;}
+  .player-empty .big{font-family:'Newsreader',serif;font-style:italic;font-size:16px;color:var(--paper);}
+  .open-tab-fallback{position:absolute;bottom:8px;right:10px;font-size:10.5px;color:var(--paper-dim);background:rgba(0,0,0,.55);padding:4px 8px;border-radius:6px;text-decoration:none;z-index:2;}
+  .open-tab-fallback:hover{color:var(--amber);}
+  .add-video-form{display:flex;gap:8px;margin:14px 0 6px;flex-wrap:wrap;}
+  .add-video-form textarea{flex:1;min-width:220px;background:var(--panel);border:1px solid var(--line);color:var(--paper);padding:9px 12px;border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;resize:vertical;min-height:38px;}
+  .add-video-form textarea:focus{outline:none;border-color:var(--amber);}
+  .list-toolbar{display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px;flex-wrap:wrap;gap:10px;}
+  .tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px;}
+  .tab{background:none;border:none;color:var(--paper-dim);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;}
+  .tab.active{background:var(--amber);color:#221a0c;}
+  .count-label{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--paper-dim);}
+  .video-list{display:flex;flex-direction:column;gap:6px;}
+  .video-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;transition:border-color .12s;}
+  .video-row:hover{border-color:var(--amber-dim);}
+  .video-row.current{border-color:var(--amber);background:#26241c;}
+  .video-row.watched .v-title{color:var(--paper-dim);text-decoration:line-through;text-decoration-color:#4a4e5c;}
+  .v-idx{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--paper-dim);width:26px;text-align:right;flex-shrink:0;}
+  .v-title{flex:1;font-size:13.5px;line-height:1.3;}
+  .v-title-input{flex:1;background:transparent;border:none;border-bottom:1px dashed var(--line);color:var(--paper);font-size:13.5px;font-family:'Inter',sans-serif;padding:2px 0;}
+  .v-title-input:focus{outline:none;border-color:var(--amber);}
+  .v-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .chk{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--paper-dim);cursor:pointer;user-select:none;}
+  .chk input{accent-color:var(--teal);width:14px;height:14px;cursor:pointer;}
+  .star-btn{background:none;border:none;font-size:16px;cursor:pointer;line-height:1;padding:0;color:#4a4e5c;}
+  .star-btn.on{color:var(--red);}
+  .del-btn{background:none;border:none;color:#4a4e5c;font-size:13px;cursor:pointer;padding:0 2px;}
+  .del-btn:hover{color:var(--red);}
+  .empty-state{text-align:center;padding:50px 20px;color:var(--paper-dim);}
+  .empty-state .big{font-family:'Newsreader',serif;font-size:20px;color:var(--paper);margin-bottom:8px;}
+  .footnote{margin-top:26px;font-size:11.5px;color:#5c6070;line-height:1.6;border-top:1px solid var(--line);padding-top:14px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="eyebrow">Admit Card · Final Attempt</div>
+      <h1>Final Countdown</h1>
+      <p>CA Final revision desk — no scrolling YouTube, just the syllabus.</p>
+    </div>
+    <div class="subject-list" id="subjectList"></div>
+    <button class="add-subject" id="addSubjectBtn">+ add a paper</button>
+    <div class="revision-cta">
+      <div class="eyebrow">Last-day mode</div>
+      <p>Show only the videos you've starred for revision, across every paper.</p>
+      <button id="revisionModeBtn">Open revision queue</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <h2 id="mainTitle">Pick a paper</h2>
+        <div class="sub" id="mainSub">— select from the left</div>
+      </div>
+    </div>
+
+    <div class="link-form" id="linkForm" style="display:none;">
+      <input type="text" id="playlistInput" placeholder="Paste the YouTube playlist link (or playlist ID)" />
+      <button class="secondary" id="savePlaylistBtn">Save link</button>
+      <button id="playPlaylistBtn">▶ Play full playlist</button>
+    </div>
+
+    <div class="player-wrap" id="playerWrap">
+      <div class="player-empty"><div class="big">Nothing queued yet</div><div>Paste a playlist link above, or pick a paper on the left.</div></div>
+    </div>
+
+    <div class="add-video-form" id="addVideoForm" style="display:none;">
+      <textarea id="addVideoInput" placeholder="Paste one or more video links from the playlist (one per line) to add them to your checklist"></textarea>
+      <button id="addVideoBtn">+ Add to checklist</button>
+    </div>
+
+    <div class="list-toolbar" id="listToolbar" style="display:none;">
+      <div class="tabs">
+        <button class="tab active" data-filter="all">All</button>
+        <button class="tab" data-filter="unwatched">Unwatched</button>
+        <button class="tab" data-filter="revision">Starred</button>
+      </div>
+      <div class="count-label" id="countLabel"></div>
+    </div>
+
+    <div class="video-list" id="videoList"></div>
+    <div class="footnote" id="footnote"></div>
+  </main>
+</div>
+
+<script>
+let memoryFallback = {};
+async function storageGet(key){
+  try{ if(!window.storage) throw new Error('no storage'); const r = await window.storage.get(key, false); return r ? r.value : null; }
+  catch(e){ return memoryFallback[key] ?? null; }
+}
+async function storageSet(key, value){
+  try{ if(!window.storage) throw new Error('no storage'); await window.storage.set(key, value, false); }
+  catch(e){}
+  memoryFallback[key] = value;
+}
+
+const STORAGE_KEY = 'ca-final-dashboard-state-v2';
+
+const DEFAULT_SUBJECTS = [
+  { id:'fr',  code:'PAPER-1', name:'Financial Reporting', playlistId:null, videos:[] },
+  { id:'afm', code:'PAPER-2', name:'Advanced Financial Management', playlistId:null, videos:[] },
+  { id:'aape',code:'PAPER-3', name:'Advanced Auditing, Assurance & Professional Ethics', playlistId:null, videos:[] },
+  { id:'dt',  code:'PAPER-4', name:'Direct Tax Laws & International Taxation', playlistId:null, videos:[] },
+  { id:'idt', code:'PAPER-5', name:'Indirect Tax Laws', playlistId:null, videos:[] },
+  { id:'ibs', code:'PAPER-6', name:'Integrated Business Solutions', playlistId:null, videos:[] },
+];
+
+let state = { subjects: JSON.parse(JSON.stringify(DEFAULT_SUBJECTS)) };
+let activeSubjectId = null;
+let currentFilter = 'all';
+let revisionMode = false;
+let saveTimer = null;
+let currentPlayingId = null;
+
+function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(()=> storageSet(STORAGE_KEY, JSON.stringify(state)), 350); }
+
+function extractPlaylistId(input){
+  if(!input) return null;
+  input = input.trim();
+  const m = input.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+  if(m) return m[1];
+  if(/^(PL|UU|FL|RD|OL)[a-zA-Z0-9_-]{10,}$/.test(input)) return input;
+  return null;
+}
+function extractVideoId(input){
+  if(!input) return null;
+  input = input.trim();
+  let m = input.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if(m) return m[1];
+  m = input.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if(m) return m[1];
+  m = input.match(/embed\/([a-zA-Z0-9_-]{11})/);
+  if(m) return m[1];
+  if(/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+  return null;
+}
+
+function setPlayerToVideo(videoId){
+  currentPlayingId = videoId;
+  document.getElementById('playerWrap').innerHTML =
+    `<iframe src="https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+     <a class="open-tab-fallback" href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener">Not loading? Open this video in a new tab ↗</a>`;
+  document.querySelectorAll('.video-row').forEach(el=> el.classList.toggle('current', el.dataset.id===videoId));
+}
+function setPlayerToPlaylist(playlistId){
+  currentPlayingId = null;
+  document.getElementById('playerWrap').innerHTML =
+    `<iframe src="https://www.youtube.com/embed/videoseries?list=${playlistId}&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+     <a class="open-tab-fallback" href="https://www.youtube.com/playlist?list=${playlistId}" target="_blank" rel="noopener">Not loading? Open this playlist in a new tab ↗</a>`;
+}
+
+async function fetchTitle(videoId){
+  try{
+    const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+    if(res.ok){ const data = await res.json(); if(data.title) return data.title; }
+  }catch(e){}
+  return null;
+}
+
+function renderSidebar(){
+  const list = document.getElementById('subjectList');
+  list.innerHTML = '';
+  state.subjects.forEach(s=>{
+    const total = s.videos.length;
+    const watched = s.videos.filter(v=>v.watched).length;
+    const pct = total ? Math.round(watched/total*100) : 0;
+    const stub = document.createElement('div');
+    stub.className = 'stub' + (s.id===activeSubjectId && !revisionMode ? ' active' : '');
+    stub.innerHTML = `
+      <button class="stub-remove" title="Remove paper">✕</button>
+      <div class="stub-code">${s.code}</div>
+      <div class="stub-name">${escapeHtml(s.name)}</div>
+      <div class="progress-row">
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-label">${watched}/${total}</div>
+      </div>`;
+    stub.addEventListener('click', (e)=>{ if(e.target.closest('.stub-remove')) return; selectSubject(s.id); });
+    stub.querySelector('.stub-remove').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(confirm(`Remove "${s.name}" from your desk?`)){
+        state.subjects = state.subjects.filter(x=>x.id!==s.id);
+        if(activeSubjectId===s.id) activeSubjectId = null;
+        scheduleSave(); renderSidebar(); renderMain();
+      }
+    });
+    stub.querySelector('.stub-name').addEventListener('dblclick', (e)=>{
+      e.stopPropagation();
+      const input = document.createElement('input');
+      input.className='stub-editname'; input.value = s.name;
+      stub.querySelector('.stub-name').replaceWith(input); input.focus();
+      const commit = ()=>{ s.name = input.value.trim() || s.name; scheduleSave(); renderSidebar(); renderMain(); };
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', ev=>{ if(ev.key==='Enter') input.blur(); });
+    });
+    list.appendChild(stub);
+  });
+}
+
+function selectSubject(id){
+  activeSubjectId = id; revisionMode = false; currentFilter = 'all';
+  renderSidebar(); renderMain();
+}
+
+function renderMain(){
+  const subject = state.subjects.find(s=>s.id===activeSubjectId);
+  const title = document.getElementById('mainTitle');
+  const sub = document.getElementById('mainSub');
+  const linkForm = document.getElementById('linkForm');
+  const addVideoForm = document.getElementById('addVideoForm');
+  const toolbar = document.getElementById('listToolbar');
+  const wrap = document.getElementById('playerWrap');
+
+  if(revisionMode){
+    title.textContent = 'Revision queue';
+    sub.textContent = 'every paper · starred videos only';
+    linkForm.style.display = 'none';
+    addVideoForm.style.display = 'none';
+    toolbar.style.display = 'none';
+    wrap.innerHTML = `<div class="player-empty"><div class="big">Pick a starred video below to play it</div><div>These carry over from all your papers.</div></div>`;
+    renderRevisionQueue();
+    return;
+  }
+
+  if(!subject){
+    title.textContent = 'Pick a paper';
+    sub.textContent = '— select from the left';
+    linkForm.style.display = 'none';
+    addVideoForm.style.display = 'none';
+    toolbar.style.display = 'none';
+    wrap.innerHTML = `<div class="player-empty"><div class="big">Nothing queued yet</div><div>Paste a playlist link above, or pick a paper on the left.</div></div>`;
+    document.getElementById('videoList').innerHTML = '';
+    document.getElementById('footnote').innerHTML = '';
+    return;
+  }
+
+  title.textContent = subject.name;
+  sub.textContent = subject.playlistId ? `playlist linked · plays inline` : 'no playlist linked yet';
+  linkForm.style.display = 'flex';
+  document.getElementById('playlistInput').value = subject.playlistId || '';
+  addVideoForm.style.display = 'flex';
+  toolbar.style.display = 'flex';
+
+  if(subject.playlistId){
+    setPlayerToPlaylist(subject.playlistId);
+  } else {
+    wrap.innerHTML = `<div class="player-empty"><div class="big">No playlist linked</div><div>Paste the YouTube playlist link above and hit "Save link", then "Play full playlist" to watch straight through — it always follows the live playlist, so new uploads play too.</div></div>`;
+  }
+  renderVideoList();
+  document.getElementById('footnote').innerHTML =
+    `"Play full playlist" always follows the live YouTube playlist, so newly added videos play automatically. The checklist below is yours to curate — paste individual video links to add items, tick them off as watched, and ★ anything for last-day revision.`;
+}
+
+function renderVideoList(){
+  const subject = state.subjects.find(s=>s.id===activeSubjectId);
+  const listEl = document.getElementById('videoList');
+  const countEl = document.getElementById('countLabel');
+  if(!subject || revisionMode) return;
+  listEl.innerHTML = '';
+  let videos = [...subject.videos];
+  if(currentFilter==='unwatched') videos = videos.filter(v=>!v.watched);
+  if(currentFilter==='revision') videos = videos.filter(v=>v.revision);
+  countEl.textContent = `${subject.videos.filter(v=>v.watched).length}/${subject.videos.length} watched`;
+
+  if(videos.length===0){
+    listEl.innerHTML = `<div class="empty-state"><div class="big">Checklist is empty</div>paste video links above to start tracking them</div>`;
+    return;
+  }
+  videos.forEach((v, i)=>{
+    const row = document.createElement('div');
+    row.className = 'video-row' + (v.watched ? ' watched' : '') + (v.id===currentPlayingId ? ' current':'');
+    row.dataset.id = v.id;
+    row.innerHTML = `
+      <span class="v-idx">${i+1}</span>
+      <span class="v-title">${escapeHtml(v.title)}</span>
+      <div class="v-actions">
+        <label class="chk"><input type="checkbox" ${v.watched?'checked':''}/> watched</label>
+        <button class="star-btn ${v.revision?'on':''}" title="Mark for last-day revision">★</button>
+        <button class="del-btn" title="Remove">✕</button>
+      </div>`;
+    row.addEventListener('click', (e)=>{ if(e.target.closest('.v-actions')) return; setPlayerToVideo(v.id); });
+    row.querySelector('input[type=checkbox]').addEventListener('change', (e)=>{ v.watched = e.target.checked; scheduleSave(); renderSidebar(); renderVideoList(); });
+    row.querySelector('.star-btn').addEventListener('click', (e)=>{ e.stopPropagation(); v.revision = !v.revision; scheduleSave(); renderVideoList(); });
+    row.querySelector('.del-btn').addEventListener('click', (e)=>{ e.stopPropagation(); subject.videos = subject.videos.filter(x=>x.id!==v.id); scheduleSave(); renderSidebar(); renderVideoList(); });
+    row.querySelector('.v-title').addEventListener('dblclick', (e)=>{
+      e.stopPropagation();
+      const input = document.createElement('input');
+      input.className='v-title-input'; input.value = v.title;
+      e.target.replaceWith(input); input.focus();
+      const commit = ()=>{ v.title = input.value.trim()||v.title; scheduleSave(); renderVideoList(); };
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', ev=>{ if(ev.key==='Enter') input.blur(); });
+    });
+    listEl.appendChild(row);
+  });
+}
+
+function renderRevisionQueue(){
+  const listEl = document.getElementById('videoList');
+  listEl.innerHTML = '';
+  let items = [];
+  state.subjects.forEach(s=> s.videos.forEach(v=>{ if(v.revision) items.push({...v, subject:s}); }));
+  document.getElementById('footnote').innerHTML = `Star any video (★) while studying a paper to add it here for the night before the exam.`;
+  if(items.length===0){
+    listEl.innerHTML = `<div class="empty-state"><div class="big">No stars yet</div>open a paper and tap ★ on the videos you'll want the night before</div>`;
+    return;
+  }
+  items.forEach(v=>{
+    const row = document.createElement('div');
+    row.className = 'video-row' + (v.watched ? ' watched' : '') + (v.id===currentPlayingId ? ' current':'');
+    row.dataset.id = v.id;
+    row.innerHTML = `
+      <span class="v-idx">${v.subject.code.replace('PAPER-','P')}</span>
+      <span class="v-title">${escapeHtml(v.title)}</span>
+      <div class="v-actions">
+        <label class="chk"><input type="checkbox" ${v.watched?'checked':''}/> watched</label>
+        <button class="star-btn on">★</button>
+      </div>`;
+    row.addEventListener('click', (e)=>{ if(e.target.closest('.v-actions')) return; setPlayerToVideo(v.id); });
+    row.querySelector('input[type=checkbox]').addEventListener('change', (e)=>{
+      const real = state.subjects.find(s=>s.id===v.subject.id).videos.find(x=>x.id===v.id);
+      real.watched = e.target.checked; scheduleSave(); renderSidebar(); renderRevisionQueue();
+    });
+    row.querySelector('.star-btn').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const real = state.subjects.find(s=>s.id===v.subject.id).videos.find(x=>x.id===v.id);
+      real.revision = false; scheduleSave(); renderRevisionQueue();
+    });
+    listEl.appendChild(row);
+  });
+}
+
+function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str ?? ''; return d.innerHTML; }
+
+document.getElementById('addSubjectBtn').addEventListener('click', ()=>{
+  const name = prompt('Paper name (e.g. "Strategic Cost Management")');
+  if(!name) return;
+  const id = 'custom-' + Date.now();
+  state.subjects.push({ id, code:'PAPER-X', name, playlistId:null, videos:[] });
+  scheduleSave(); renderSidebar(); selectSubject(id);
+});
+
+document.getElementById('revisionModeBtn').addEventListener('click', ()=>{ revisionMode = true; renderSidebar(); renderMain(); });
+
+document.getElementById('savePlaylistBtn').addEventListener('click', ()=>{
+  const subject = state.subjects.find(s=>s.id===activeSubjectId);
+  if(!subject) return;
+  const pid = extractPlaylistId(document.getElementById('playlistInput').value);
+  if(!pid){ alert('Couldn\'t find a playlist ID in that link. Paste the full YouTube playlist URL — it should contain "list=".'); return; }
+  subject.playlistId = pid;
+  scheduleSave(); renderMain();
+});
+
+document.getElementById('playPlaylistBtn').addEventListener('click', ()=>{
+  const subject = state.subjects.find(s=>s.id===activeSubjectId);
+  if(!subject) return;
+  const pid = extractPlaylistId(document.getElementById('playlistInput').value) || subject.playlistId;
+  if(!pid){ alert('Save a playlist link first.'); return; }
+  subject.playlistId = pid;
+  scheduleSave();
+  setPlayerToPlaylist(pid);
+  document.getElementById('mainSub').textContent = 'playlist linked · plays inline';
+});
+
+document.getElementById('addVideoBtn').addEventListener('click', async ()=>{
+  const subject = state.subjects.find(s=>s.id===activeSubjectId);
+  if(!subject) return;
+  const raw = document.getElementById('addVideoInput').value;
+  const lines = raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length===0) return;
+  let added = 0;
+  for(const line of lines){
+    const vid = extractVideoId(line);
+    if(!vid) continue;
+    if(subject.videos.some(v=>v.id===vid)) continue;
+    subject.videos.push({ id:vid, title:'Loading title…', watched:false, revision:false });
+    added++;
+  }
+  document.getElementById('addVideoInput').value = '';
+  scheduleSave(); renderSidebar(); renderVideoList();
+  for(const v of subject.videos){
+    if(v.title==='Loading title…'){
+      const t = await fetchTitle(v.id);
+      v.title = t || ('Video ' + v.id);
+      renderVideoList();
+    }
+  }
+  scheduleSave();
+  if(added===0) alert("Couldn't recognise a video link in what you pasted — use a full youtube.com/watch?v=... or youtu.be/... link.");
+});
+
+document.body.addEventListener('click', (e)=>{
+  const tab = e.target.closest('.tab');
+  if(tab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentFilter = tab.dataset.filter;
+    renderVideoList();
+  }
+});
+
+(async function init(){
+  const saved = await storageGet(STORAGE_KEY);
+  if(saved){
+    try{ const parsed = JSON.parse(saved); if(parsed && Array.isArray(parsed.subjects) && parsed.subjects.length){ state = parsed; } }catch(e){}
+  }
+  renderSidebar();
+  renderMain();
+})();
+</script>
+</body>
+</html>
